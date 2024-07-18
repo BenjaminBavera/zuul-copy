@@ -63,7 +63,7 @@ public class Parser
         }
     }
     
-    public void showCommands(){
-        commands.printAll();
+    public String getCommands(){
+        return commands.getCommandList();
     }
 }
