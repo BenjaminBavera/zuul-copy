@@ -17,7 +17,7 @@ public class Room
 {
     private String description;
     private HashMap<String, Room> exits;
-    private ArrayList<String> objetos;
+    private ArrayList<Objeto> objetos;
     /**
      * Create a room described "description". Initially, it has
      * no exits. "description" is something like "a kitchen" or
@@ -72,7 +72,7 @@ public class Room
         return "Te encuentras en " + description + ".\n" + getExitString();
     }
     
-    public void addObjeto(String objeto){
+    public void addObjeto(Objeto objeto){
         objetos.add(objeto);
     }
     
@@ -80,15 +80,15 @@ public class Room
         objetos.clear();
     }
     
-    public ArrayList<String> clonarListaObjetos(){
-        ArrayList<String> objetosDuplicado = (ArrayList<String>) objetos.clone();
+    public ArrayList<Objeto> clonarListaObjetos(){
+        ArrayList<Objeto> objetosDuplicado = (ArrayList<Objeto>) objetos.clone();
         return objetosDuplicado;
     }
     
     public String getObjetos(){
         String objetosString = "Hay " + objetos.size() + " objetos: ";
-        for (String objeto : objetos){
-            objetosString += objeto + " ";
+        for (Objeto objeto : objetos){
+            objetosString += objeto.getName() + " ";
         }
         return objetosString;
     }

@@ -20,7 +20,7 @@ public class Game
 {
     private Parser parser;
     private Room currentRoom;
-    private ArrayList<String> inventario;
+    private ArrayList<Objeto> inventario;
         
     /**
      * Create the game and initialise its internal map.
@@ -57,14 +57,14 @@ public class Game
         salida.setExit("east", win);
         win.setExit(null,null);
         
-        // agregar los objetos a los room
-        inicio.addObjeto("control remoto de bomba");
-        uno.addObjeto("matafuegos");
-        uno.addObjeto("bomba a control remoto");
-        uno.addObjeto("cinta");
-        dos.addObjeto("pintura");
-        dos.addObjeto("maniqui");
-        tres.addObjeto("acertijo");
+        // crear y agregar los objetos a los room
+        inicio.addObjeto(new Objeto("control remoto de bomba",200));
+        uno.addObjeto(new Objeto("matafuegos",6000));
+        uno.addObjeto(new Objeto("bomba a control remoto",5000));
+        uno.addObjeto(new Objeto("cinta",100));
+        dos.addObjeto(new Objeto("maquillaje",500));
+        dos.addObjeto(new Objeto("maniqui",2000));
+        tres.addObjeto(new Objeto("acertijo",10));
 
         currentRoom = inicio;  // start game outside
     }
@@ -200,8 +200,8 @@ public class Game
     }
     
     private void agarrarObjetos(){
-        ArrayList<String>objetosRoom = currentRoom.clonarListaObjetos();
-        for (String objeto : objetosRoom){
+        ArrayList<Objeto>objetosRoom = currentRoom.clonarListaObjetos();
+        for (Objeto objeto : objetosRoom){
             inventario.add(objeto);
         }
         currentRoom.eliminarObjetos();
@@ -210,10 +210,10 @@ public class Game
     }
     
     private String getInventory(){
-        if (inventario.size() == 0) return "No tienens objetos";
+        if (inventario.size() == 0) return "No tienes objetos";
         String inventoryString = "Tus objetos son: ";
-        for (String objeto : inventario){
-            inventoryString += objeto + ", ";
+        for (Objeto objeto : inventario){
+            inventoryString += objeto.getName() + ", ";
         }
         return inventoryString;
     }
