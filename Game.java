@@ -21,12 +21,14 @@ public class Game
     private Parser parser;
     private Room currentRoom;
     private ArrayList<Objeto> inventario;
-        
+    private Stack<Room> recorrido;
+         
     /**
      * Create the game and initialise its internal map.
      */
     public Game() 
     {
+        recorrido = new Stack<>();
         createRooms();
         parser = new Parser();
         inventario = new ArrayList();
@@ -66,7 +68,9 @@ public class Game
         dos.addObjeto(new Objeto("maniqui",2000));
         tres.addObjeto(new Objeto("acertijo",10));
 
-        currentRoom = inicio;  // start game outside
+        currentRoom = inicio; 
+        recorrido.push(inicio);
+        // start game outside
     }
 
     /**
@@ -130,6 +134,8 @@ public class Game
             agarrarObjetos();
         } else if (commandWord.equals("inventory")){
             System.out.println(getInventory());
+        } else if (commandWord.equals("back")){
+            goBack();
         }
 
         return wantToQuit;
@@ -173,6 +179,7 @@ public class Game
             System.out.println("There is no door!");
         }
         else {
+            recorrido.push(currentRoom);
             currentRoom = nextRoom;
             printLocationInfo();
         }
@@ -216,5 +223,16 @@ public class Game
             inventoryString += objeto.getName() + ", ";
         }
         return inventoryString;
+    }
+    
+    private void goBack(){
+        if (recorrido.size() == 1){ 
+            System.out.println("no puedes volver atras");
+        }
+        else { 
+            currentRoom = recorrido.peek();
+            recorrido.pop();
+            printLocationInfo();
+        }
     }
 }
