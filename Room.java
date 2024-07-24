@@ -76,8 +76,8 @@ public class Room
         objetos.add(objeto);
     }
     
-    public void eliminarObjetos(){
-        objetos.clear();
+    public void eliminarObjeto(Objeto objeto){
+        objetos.remove(objeto);
     }
     
     public ArrayList<Objeto> clonarListaObjetos(){

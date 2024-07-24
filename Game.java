@@ -19,19 +19,15 @@ import java.util.*;
 public class Game 
 {
     private Parser parser;
-    private Room currentRoom;
-    private ArrayList<Objeto> inventario;
-    private Stack<Room> recorrido;
+    private Player player;
          
     /**
      * Create the game and initialise its internal map.
      */
     public Game() 
     {
-        recorrido = new Stack<>();
         createRooms();
         parser = new Parser();
-        inventario = new ArrayList();
     }
 
     /**
@@ -60,16 +56,18 @@ public class Game
         win.setExit(null,null);
         
         // crear y agregar los objetos a los room
-        inicio.addObjeto(new Objeto("control remoto de bomba",200));
+        inicio.addObjeto(new Objeto("control",200));
         uno.addObjeto(new Objeto("matafuegos",6000));
-        uno.addObjeto(new Objeto("bomba a control remoto",5000));
+        uno.addObjeto(new Objeto("bomba",5000));
         uno.addObjeto(new Objeto("cinta",100));
         dos.addObjeto(new Objeto("maquillaje",500));
         dos.addObjeto(new Objeto("maniqui",2000));
         tres.addObjeto(new Objeto("acertijo",10));
+        
+        //crear el jugador y asignarle su currentRoom
+        player = new Player(inicio);
 
-        currentRoom = inicio; 
-        recorrido.push(inicio);
+        player.agregarAlRecorrido(inicio);
         // start game outside
     }
 
@@ -129,9 +127,9 @@ public class Game
             wantToQuit = quit(command);
         }
         else if (commandWord.equals("look")) {
-            System.out.println(currentRoom.getObjetos());
-        }else if (commandWord.equals("get")) {
-            agarrarObjetos();
+            System.out.println(player.getCurrentRoom().getObjetos());
+        }else if (commandWord.equals("take")) {
+            agarrarObjeto(command);
         } else if (commandWord.equals("inventory")){
             System.out.println(getInventory());
         } else if (commandWord.equals("back")){
@@ -173,20 +171,20 @@ public class Game
 
         // Try to leave current room.
         Room nextRoom = null;
-        nextRoom =  currentRoom.getExit(direction);
+        nextRoom =  player.getCurrentRoom().getExit(direction);
 
         if (nextRoom == null) {
             System.out.println("There is no door!");
         }
         else {
-            recorrido.push(currentRoom);
-            currentRoom = nextRoom;
+            player.agregarAlRecorrido(player.getCurrentRoom());
+            player.setCurrentRoom(nextRoom);
             printLocationInfo();
         }
     }
     
     private void printLocationInfo(){
-        System.out.println(currentRoom.getLongDescription());
+        System.out.println(player.getCurrentRoom().getLongDescription());
         System.out.println();
     }
 
@@ -206,32 +204,39 @@ public class Game
         }
     }
     
-    private void agarrarObjetos(){
-        ArrayList<Objeto>objetosRoom = currentRoom.clonarListaObjetos();
-        for (Objeto objeto : objetosRoom){
-            inventario.add(objeto);
+    private void agarrarObjeto(Command command){
+        if(!command.hasSecondWord()) {
+            System.out.println("take what?");
+            return;
         }
-        currentRoom.eliminarObjetos();
-        System.out.println("Has agarrado todos los objetos de esta habitacion");
-        System.out.println();
+        Objeto objeto = null;
+        String secondWord = command.getSecondWord();
+        ArrayList<Objeto>objetosRoom = player.getCurrentRoom().clonarListaObjetos();
+        for (int i = 0; i < objetosRoom.size() && objeto == null; i++){
+            if (secondWord.equals(objetosRoom.get(i).getName())){
+                objeto = objetosRoom.get(i);    
+            }
+        }
+        if (objeto == null) {
+            System.out.println("No se encuentra ese objeto en la habitacion");
+            return;
+        }
+        player.takeItem(objeto);
+        player.getCurrentRoom().eliminarObjeto(objeto);
+        System.out.println("Has agarrado: " + objeto.getName());
     }
     
     private String getInventory(){
-        if (inventario.size() == 0) return "No tienes objetos";
-        String inventoryString = "Tus objetos son: ";
-        for (Objeto objeto : inventario){
-            inventoryString += objeto.getName() + ", ";
-        }
-        return inventoryString;
+        return player.getInventory();
     }
     
     private void goBack(){
-        if (recorrido.size() == 1){ 
+        if (player.sizeRecorrido() == 1){ 
             System.out.println("no puedes volver atras");
         }
         else { 
-            currentRoom = recorrido.peek();
-            recorrido.pop();
+            player.setCurrentRoom(player.peekRecorrido());
+            player.eliminarDelRecorrido();
             printLocationInfo();
         }
     }
