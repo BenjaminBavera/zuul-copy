@@ -64,6 +64,14 @@ public class Game
         dos.addObjeto(new Objeto("maniqui",2000));
         tres.addObjeto(new Objeto("acertijo",10));
         
+        // agregar los objetos necesarios para pasar
+        dos.addParaPasar(new Objeto("matafuegos",6000));
+        tres.addParaPasar(new Objeto("cinta",100));
+        tres.addParaPasar(new Objeto("maniqui",2000));
+        tres.addParaPasar(new Objeto("bomba",5000));
+        tres.addParaPasar(new Objeto("maquillaje",500));
+        tres.addParaPasar(new Objeto("control",200));
+        
         //crear el jugador y asignarle su currentRoom
         player = new Player(inicio);
 
@@ -127,15 +135,16 @@ public class Game
             wantToQuit = quit(command);
         }
         else if (commandWord.equals("look")) {
-            System.out.println(player.getCurrentRoom().getObjetos());
+            System.out.println(player.getCurrentRoom().getNameObjetos());
         }else if (commandWord.equals("take")) {
             agarrarObjeto(command);
         } else if (commandWord.equals("inventory")){
             System.out.println(getInventory());
         } else if (commandWord.equals("back")){
             goBack();
+        } else if (commandWord.equals("drop")){
+            soltarObjeto(command);
         }
-
         return wantToQuit;
     }
 
@@ -205,6 +214,10 @@ public class Game
     }
     
     private void agarrarObjeto(Command command){
+        if (!puedePasar()){
+            System.out.println("Debes superar el obstaculo");
+            return;
+        }
         if(!command.hasSecondWord()) {
             System.out.println("take what?");
             return;
@@ -226,6 +239,28 @@ public class Game
         System.out.println("Has agarrado: " + objeto.getName());
     }
     
+    private void soltarObjeto(Command command){
+        if(!command.hasSecondWord()) {
+            System.out.println("drop what?");
+            return;
+        }
+        Objeto objeto = new Objeto("pesuti",777);;
+        String secondWord = command.getSecondWord();
+        ArrayList<Objeto>objetosParaPasar = player.getCurrentRoom().getParaPasar();
+        for (int i = 0; i < objetosParaPasar.size(); i++){
+            if (secondWord.equals(objetosParaPasar.get(i).getName())){
+                objeto = objetosParaPasar.get(i);    
+            }
+        }
+        if (player.getCurrentRoom().pertenece(player.getCurrentRoom().getParaPasar(), objeto)){
+            player.dropItem(objeto);
+            player.getCurrentRoom().addObjeto(objeto);
+            System.out.println("Has soltado: " + objeto.getName());
+        }   else {
+            System.out.println("Ese objeto no debe ser soltado aqui");
+        }
+    }
+    
     private String getInventory(){
         return player.getInventory();
     }
@@ -240,4 +275,8 @@ public class Game
             printLocationInfo();
         }
     }
+    
+    private boolean puedePasar(){
+        return player.getCurrentRoom().puedePasar();
+    }   
 }
